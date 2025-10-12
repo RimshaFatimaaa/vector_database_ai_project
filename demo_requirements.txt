@@ -1,0 +1,17 @@
+# Core dependencies for the NLP Demo App
+streamlit>=1.28.0
+pandas>=1.5.0
+plotly>=5.15.0
+
+# NLP dependencies
+nltk>=3.8.1
+spacy>=3.6.0
+transformers>=4.30.0
+torch>=2.0.0
+
+# Authentication
+supabase>=2.0.0
+python-dotenv>=1.0.0
+
+# Additional utilities
+pprint
