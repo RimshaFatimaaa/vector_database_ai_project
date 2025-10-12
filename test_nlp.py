@@ -5,7 +5,7 @@ Simple test script for the NLP processor
 
 from ai_modules.nlp_processor import process_interview_response
 
-def test_nlp_processor():m
+def test_nlp_processor():
     """Test the NLP processor with sample data"""
     print("Testing NLP Processor...")
     
