@@ -204,6 +204,9 @@ def main():
         st.session_state.authenticated = False
         st.session_state.user_email = None
         st.session_state.user_name = None
+        # Reset scoring session state
+        if 'previous_overall_score' in st.session_state:
+            del st.session_state['previous_overall_score']
         st.query_params.clear()
         st.rerun()
     
@@ -212,6 +215,12 @@ def main():
     if not is_authenticated:
         show_auth_page()
         return
+    
+    # Reset scoring session state for new user sessions
+    if 'user_session_initialized' not in st.session_state:
+        if 'previous_overall_score' in st.session_state:
+            del st.session_state['previous_overall_score']
+        st.session_state['user_session_initialized'] = True
     
     # Custom header with logo
     st.markdown("""
@@ -521,10 +530,18 @@ def display_llm_evaluation(evaluation, question):
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
+        # Calculate delta only if there's a previous score to compare against
+        delta_value = None
+        if 'previous_overall_score' in st.session_state:
+            delta_value = f"{evaluation.overall_score - st.session_state['previous_overall_score']:.1f}"
+        
+        # Store current score for next comparison
+        st.session_state['previous_overall_score'] = evaluation.overall_score
+        
         st.metric(
             label="Overall Score",
             value=f"{evaluation.overall_score:.1f}/100",
-            delta=f"{evaluation.overall_score - 50:.1f}",
+            delta=delta_value,
             help="Overall performance score"
         )
     
@@ -605,11 +622,19 @@ def display_langchain_evaluation(evaluation_result, question):
             overall_score = min(raw_score, 15.0)  # Cap at 15 for very poor answers
         else:
             overall_score = raw_score
+        
+        # Calculate delta only if there's a previous score to compare against
+        delta_value = None
+        if 'previous_overall_score' in st.session_state:
+            delta_value = f"{overall_score - st.session_state['previous_overall_score']:.1f}"
+        
+        # Store current score for next comparison
+        st.session_state['previous_overall_score'] = overall_score
             
         st.metric(
             label="Overall Score",
             value=f"{overall_score:.1f}/100",
-            delta=f"{overall_score - 50:.1f}",
+            delta=delta_value,
             help="Overall performance score"
         )
     
