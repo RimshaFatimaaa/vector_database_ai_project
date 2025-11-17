@@ -1,6 +1,8 @@
 """
 LangChain Integration for AI Interview Coach
 Based on the langchain.ipynb notebook implementation
+
+Updated for Streamlit Cloud deployment with langchain_core imports.
 """
 
 import os
