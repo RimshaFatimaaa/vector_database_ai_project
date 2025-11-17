@@ -497,18 +497,27 @@ def main():
     
     st.markdown('</div>', unsafe_allow_html=True)  # Close input section
 
-    # Vector database lookup section
-    st.markdown('<h2 class="section-header">🧠 Vector Knowledge Base Lookup</h2>', unsafe_allow_html=True)
+    # Vector database lookup section - Step 5 Implementation
+    st.markdown('<h2 class="section-header">🧠 Vector Knowledge Base Lookup (Step 5)</h2>', unsafe_allow_html=True)
+    st.markdown("**Search the interview knowledge base for canonical answers, good/bad examples, and transcripts**")
+    
     vector_query = st.text_area(
-        "Find similar canonical answers:",
-        placeholder="Paste a candidate response or topic to search the knowledge base...",
-        height=120
+        "Search query:",
+        placeholder="Enter a question, answer, or topic to search the knowledge base...",
+        height=100
     )
-    col_v1, col_v2 = st.columns([3, 1])
+    
+    col_v1, col_v2, col_v3 = st.columns([2, 2, 1])
     with col_v1:
-        top_k = st.slider("Number of matches", min_value=1, max_value=5, value=3)
+        top_k = st.slider("Number of matches", min_value=1, max_value=10, value=3)
     with col_v2:
-        auto_search = st.checkbox("Auto-search on text change", value=False)
+        example_type = st.selectbox(
+            "Filter by type:",
+            ["All", "canonical", "good_example", "bad_example", "transcript"],
+            help="Filter results by example type"
+        )
+    with col_v3:
+        auto_search = st.checkbox("Auto-search", value=False)
 
     trigger_search = st.button("🔎 Search Knowledge Base", type="primary") or (auto_search and vector_query.strip())
 
@@ -519,10 +528,35 @@ def main():
             with st.spinner("Retrieving similar knowledge snippets..."):
                 try:
                     vector_store = get_vector_store()
-                    results = vector_store.search(vector_query, top_k=top_k)
+                    filter_type = None if example_type == "All" else example_type
+                    results = vector_store.search(vector_query, top_k=top_k, example_type=filter_type)
                     display_vector_results(results)
                 except Exception as exc:
                     st.error(f"Vector database lookup failed: {exc}")
+    
+    # Show knowledge base statistics
+    with st.expander("📊 Knowledge Base Statistics"):
+        try:
+            vector_store = get_vector_store()
+            # Get all documents to count types
+            all_docs = vector_store._collection.get()
+            if all_docs and "metadatas" in all_docs:
+                type_counts = {}
+                for meta in all_docs["metadatas"]:
+                    doc_type = meta.get("type", "unknown")
+                    type_counts[doc_type] = type_counts.get(doc_type, 0) + 1
+                
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.metric("Canonical Answers", type_counts.get("canonical", 0))
+                with col2:
+                    st.metric("Good Examples", type_counts.get("good_example", 0))
+                with col3:
+                    st.metric("Bad Examples", type_counts.get("bad_example", 0))
+                with col4:
+                    st.metric("Transcripts", type_counts.get("transcript", 0))
+        except Exception as e:
+            st.info("Statistics unavailable")
     
     # Footer
     st.markdown("""
@@ -853,11 +887,32 @@ def display_vector_results(results):
 
     st.success(f"Found {len(results)} similar knowledge snippets:")
     for idx, item in enumerate(results, start=1):
-        with st.expander(f"Result {idx}: {item.question}"):
-            st.write(f"**Similarity Score:** {item.score:.3f}")
-            st.write(f"**Document ID:** `{item.document_id}`")
-            st.write("**Ideal Answer:**")
-            st.write(item.ideal_answer)
+        # Determine badge color based on example type
+        type_colors = {
+            "canonical": "🔵",
+            "good_example": "🟢",
+            "bad_example": "🔴",
+            "transcript": "🟡",
+        }
+        badge = type_colors.get(item.example_type, "⚪")
+        
+        with st.expander(f"{badge} Result {idx}: {item.question} ({item.example_type})"):
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(f"**Similarity Score:** {item.score:.3f}")
+                st.write(f"**Type:** {item.example_type}")
+            with col2:
+                st.write(f"**Category:** {item.category or 'N/A'}")
+                st.write(f"**Document ID:** `{item.document_id}`")
+            
+            st.write("**Answer:**")
+            st.write(item.answer)
+            
+            # Show additional metadata if available
+            if item.metadata:
+                with st.expander("Additional Details"):
+                    for key, value in item.metadata.items():
+                        st.write(f"**{key}:** {value}")
 
 
 
