@@ -17,7 +17,7 @@ Your LangGraph AI Project is **READY** for Streamlit deployment! Here's what's a
 
 ### Option 1: Streamlit Cloud (Recommended)
 
-1. **Go to [share.streamlit.io](https://share.streamlit.io)**
+1. **Go to [share.streamlit.io](https://share.stxreamlit.io)**
 2. **Sign in with your GitHub account**
 3. **Click "New app"**
 4. **Fill in the details:**
