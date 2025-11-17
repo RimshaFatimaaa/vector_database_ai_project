@@ -25,6 +25,8 @@ from ai_modules.nlp_processor import process_interview_response, NLPProcessor
 from ai_modules.llm_processor_simple import SimpleLLMProcessor, QuestionType, DifficultyLevel
 from ai_modules.langchain_processor import LangChainInterviewProcessor
 from ai_modules.langgraph_processor import LangGraphInterviewProcessor, create_interview_processor
+from ai_modules import auth as auth_module
+from ai_modules.vector_db import InterviewVectorStore
 from ai_modules.auth import check_auth_status, init_session_state
 from ai_modules.auth_ui import show_auth_page, show_logout_button, show_header_logout
 import plotly.express as px
@@ -192,6 +194,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
+@st.cache_resource(show_spinner=False)
+def get_vector_store():
+    """Cache and reuse the vector store instance."""
+    return InterviewVectorStore()
+
+
 def main():
     """Main application function"""
     # Initialize session state
@@ -199,7 +208,7 @@ def main():
     
     # Handle logout
     if st.query_params.get("logout") == "true":
-        auth_manager = AuthManager()
+        auth_manager = auth_module.AuthManager()
         auth_manager.sign_out()
         st.session_state.authenticated = False
         st.session_state.user_email = None
@@ -487,6 +496,33 @@ def main():
                         st.error(f"Full error: {traceback.format_exc()}")
     
     st.markdown('</div>', unsafe_allow_html=True)  # Close input section
+
+    # Vector database lookup section
+    st.markdown('<h2 class="section-header">🧠 Vector Knowledge Base Lookup</h2>', unsafe_allow_html=True)
+    vector_query = st.text_area(
+        "Find similar canonical answers:",
+        placeholder="Paste a candidate response or topic to search the knowledge base...",
+        height=120
+    )
+    col_v1, col_v2 = st.columns([3, 1])
+    with col_v1:
+        top_k = st.slider("Number of matches", min_value=1, max_value=5, value=3)
+    with col_v2:
+        auto_search = st.checkbox("Auto-search on text change", value=False)
+
+    trigger_search = st.button("🔎 Search Knowledge Base", type="primary") or (auto_search and vector_query.strip())
+
+    if trigger_search:
+        if not vector_query.strip():
+            st.warning("Enter some text to query the vector database.")
+        else:
+            with st.spinner("Retrieving similar knowledge snippets..."):
+                try:
+                    vector_store = get_vector_store()
+                    results = vector_store.search(vector_query, top_k=top_k)
+                    display_vector_results(results)
+                except Exception as exc:
+                    st.error(f"Vector database lookup failed: {exc}")
     
     # Footer
     st.markdown("""
@@ -807,6 +843,21 @@ def display_langgraph_session_summary(summary):
         st.success("✅ Memory persistence is active")
     else:
         st.warning("⚠️ Memory persistence is not available")
+
+
+def display_vector_results(results):
+    """Render vector database search results in the UI."""
+    if not results:
+        st.info("No matches found yet. Try a different query.")
+        return
+
+    st.success(f"Found {len(results)} similar knowledge snippets:")
+    for idx, item in enumerate(results, start=1):
+        with st.expander(f"Result {idx}: {item.question}"):
+            st.write(f"**Similarity Score:** {item.score:.3f}")
+            st.write(f"**Document ID:** `{item.document_id}`")
+            st.write("**Ideal Answer:**")
+            st.write(item.ideal_answer)
 
 
 
