@@ -7,10 +7,10 @@ import os
 import json
 import logging
 from typing import Dict, Optional
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
-from langchain.schema import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage
 
 # Import functions from the existing LLMs_test module
 from notebooks.LLMs_test import generate_question, evaluate_answer

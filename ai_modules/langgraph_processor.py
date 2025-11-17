@@ -9,7 +9,7 @@ from typing import Optional, Dict, Any, List
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 

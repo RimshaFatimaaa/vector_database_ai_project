@@ -29,8 +29,18 @@ def initialize_models():
     try:
         nlp = spacy.load("en_core_web_sm")
     except OSError:
-        print("Please install spaCy English model: python -m spacy download en_core_web_sm")
-        return None, None
+        # Model not found, try to download it
+        try:
+            import subprocess
+            import sys
+            print("Downloading spaCy model 'en_core_web_sm'...")
+            subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"], 
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            nlp = spacy.load("en_core_web_sm")
+        except Exception as e:
+            print(f"Failed to download spaCy model: {e}")
+            print("Please install spaCy English model: python -m spacy download en_core_web_sm")
+            return None, None
     
     try:
         sentiment_pipeline = pipeline("sentiment-analysis")

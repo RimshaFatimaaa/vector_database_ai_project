@@ -2,7 +2,7 @@
 
 ## ✅ Deployment Readiness Checklist
 
-Your LangGraph AI Project is **READY** for Streamlit deployment! Here's what's already set up:
+Your Vector Database AI Project is **READY** for Streamlit deployment! Here's what's already set up:
 
 ### ✅ Project Structure
 - ✅ Main app file: `app.py`
@@ -17,14 +17,14 @@ Your LangGraph AI Project is **READY** for Streamlit deployment! Here's what's a
 
 ### Option 1: Streamlit Cloud (Recommended)
 
-1. **Go to [share.streamlit.io](https://share.stxreamlit.io)**
-2. **Sign in with your GitHub account**
+1. **Go to [share.streamlit.io](https://share.streamlit.io)**
+2. **Sign in with your GitHub account** (use the same account: `RimshaFatimaaa`)
 3. **Click "New app"**
 4. **Fill in the details:**
-   - Repository: `RimshaFatimaaa/LangGraph-AI-Project`
+   - Repository: `RimshaFatimaaa/vector_database_ai_project`
    - Branch: `main`
    - Main file path: `app.py`
-   - App URL: Choose a custom name (e.g., `langgraph-ai-coach`)
+   - App URL: Choose a custom name (e.g., `vector-database-ai-coach` or `ai-interview-coach`)
 
 5. **Set up secrets in Streamlit Cloud:**
    - Go to your app's settings
@@ -77,6 +77,7 @@ The app expects these environment variables:
 ### ✅ Core Features
 - **AI Interview Coach**: Generate and evaluate interview questions
 - **Multiple Analysis Modes**: Interview Simulation & LangGraph Workflow
+- **Vector Database Integration**: ChromaDB for semantic search and knowledge base lookup
 - **NLP Processing**: Text preprocessing and feature extraction
 - **LLM Integration**: OpenAI GPT models for evaluation
 - **LangChain Integration**: Advanced workflow orchestration
@@ -112,7 +113,7 @@ The app expects these environment variables:
 
 ## 🔗 Quick Links
 
-- **Your GitHub Repo**: https://github.com/RimshaFatimaaa/LangGraph-AI-Project
+- **Your GitHub Repo**: https://github.com/RimshaFatimaaa/vector_database_ai_project
 - **Streamlit Cloud**: https://share.streamlit.io
 - **OpenAI Platform**: https://platform.openai.com
 - **Supabase**: https://supabase.com (optional)
