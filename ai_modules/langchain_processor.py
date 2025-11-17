@@ -21,14 +21,17 @@ except ImportError:
         from langchain_community.memory import ConversationBufferMemory
     except ImportError:
         # Fallback: create a simple memory class
+        class ChatMemory:
+            def add_user_message(self, msg):
+                pass
+            def add_ai_message(self, msg):
+                pass
+        
         class ConversationBufferMemory:
             def __init__(self, memory_key="history", return_messages=True):
                 self.memory_key = memory_key
                 self.return_messages = return_messages
-                self.chat_memory = type('obj', (object,), {
-                    'add_user_message': lambda self, msg: None,
-                    'add_ai_message': lambda self, msg: None
-                })()
+                self.chat_memory = ChatMemory()
 
 # Import functions from the existing LLMs_test module
 from notebooks.LLMs_test import generate_question, evaluate_answer
